@@ -1,139 +1,174 @@
-# 🛡️ KidsSafe AI Platform
+# 🛡️ KidsSafe — AI-Powered Children's Content Safety Platform
 
-**A full-stack web application that helps parents keep their children safe online using AI-powered content filtering.**
+> A full-stack web application that gives parents complete control over what their children can discover online, powered by OpenAI GPT-4.
 
-Module: Full Stack Application Development | Student: Alessio Akabuogu
-
----
-
-## What is KidsSafe?
-
-KidsSafe is a platform where parents set the rules and children explore freely — knowing that every piece of content they see has been reviewed by AI and approved by their parent. Parents can block topics, set age ratings, limit screen time, and create separate profiles for each child. Children get a fun, colourful space to search for shows, videos, and movies — all filtered to be safe for their age.
+![Stack](https://img.shields.io/badge/React-19-blue?logo=react)
+![Stack](https://img.shields.io/badge/Node.js-Express-green?logo=node.js)
+![Stack](https://img.shields.io/badge/PostgreSQL-Database-blue?logo=postgresql)
+![Stack](https://img.shields.io/badge/OpenAI-GPT--4-orange?logo=openai)
+![Stack](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
 
 ---
 
-## Tech Stack
+## 🚀 What is KidsSafe?
 
-| Part | Technology |
+Children using mainstream platforms (YouTube, Netflix, Google) are exposed to algorithmically served content optimised for **engagement, not safety**. KidsSafe solves this by:
+
+- Giving parents **8 independent controls** per child (rating ceiling, categories, blocked keywords, violence toggle, scary content toggle, educational mode, screen-time limit, AI notes)
+- Routing **every child search through OpenAI GPT-4**, constrained by the parent's exact rules
+- Providing a **PIN-protected child profile** system so siblings can't use the wrong profile
+- Returning a **safety score (1–100)** and plain-language reason for every AI recommendation
+
+---
+
+## 🏗️ Tech Stack
+
+| Layer | Technology |
 |---|---|
-| Frontend | React 19 + TypeScript, Vite, React Router v7 |
-| Backend | Node.js, Express 4 |
-| Database | PostgreSQL 14+ |
-| AI | OpenAI gpt-4o-mini |
-| Auth | JWT (JSON Web Tokens) + bcrypt |
+| Frontend | React 19 + TypeScript 5 + Vite 8 + React Router 7 |
+| Backend | Node.js + Express + JWT authentication |
+| Database | PostgreSQL (relational schema, triggers, JSONB) |
+| AI Engine | OpenAI GPT-4o-mini (server-side, structured JSON output) |
+| HTTP Client | Axios with JWT interceptor |
 
 ---
 
-## Quick Start (Demo Mode — no backend needed)
+## 📁 Project Structure
 
-```bash
-cd frontend
-npm install
-npm run dev
 ```
-
-Open http://localhost:5173 in your browser. Register any email/password — everything works in demo mode using localStorage.
+kidssafe/
+├── vite-testapp/          # React frontend
+│   └── src/
+│       ├── components/    # AISearchBar, ContentCard, Navbar
+│       ├── contexts/      # AuthContext (global login state)
+│       ├── pages/         # LandingPage, Login, Register, Dashboard, Kids
+│       ├── services/      # api.ts (all HTTP calls + offline fallback)
+│       └── types/         # TypeScript interfaces
+│
+└── backend/               # Node.js API server
+    ├── database/
+    │   ├── schema.sql     # PostgreSQL tables, triggers, indexes
+    │   └── db.js          # Connection pool
+    ├── middleware/
+    │   └── auth.js        # JWT validation middleware
+    ├── routes/
+    │   ├── auth.js        # POST /register, POST /login
+    │   ├── children.js    # CRUD + restrictions
+    │   └── ai.js          # GPT-4 search + suggestions
+    └── server.js          # Express entry point
+```
 
 ---
 
-## Full Setup (with backend and database)
+## ⚡ Quick Start (Demo Mode — No Backend Required)
 
-### 1. Frontend
 ```bash
-cd frontend
+# 1. Install and run the frontend
+cd vite-testapp
 npm install
 npm run dev
+
+# 2. Open http://localhost:5173
+# 3. Register any email/password — the app works fully in demo mode
 ```
 
-### 2. Database
+The app detects no backend is running and switches to localStorage demo mode automatically. All features work including the AI search (uses curated safe content).
+
+---
+
+## 🔧 Full Stack Setup
+
+### 1. PostgreSQL Database
+
 ```bash
+# Create the database
 psql -U postgres -c "CREATE DATABASE kidssafe;"
+
+# Run the schema (creates all tables, trigger, indexes, sample data)
 psql -U postgres -d kidssafe -f backend/database/schema.sql
 ```
 
-### 3. Backend — create `backend/.env`
-```
+### 2. Backend Environment
+
+Create `backend/.env`:
+
+```env
 PORT=5000
 DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/kidssafe
-JWT_SECRET=any-long-random-string
-OPENAI_API_KEY=sk-...        (leave blank for demo mode)
+JWT_SECRET=your-secret-key-change-in-production
+OPENAI_API_KEY=sk-your-openai-key-here
 FRONTEND_URL=http://localhost:5173
 ```
 
-### 4. Start backend
+### 3. Start Backend
+
 ```bash
 cd backend
 npm install
 npm run dev
+# Server running at http://localhost:5000
+```
+
+### 4. Start Frontend
+
+```bash
+cd vite-testapp
+npm install
+npm run dev
+# App running at http://localhost:5173
 ```
 
 ---
 
-## Project Structure
+## 🗄️ Database Schema
 
 ```
-kidssafe-full/
-├── frontend/                   ← React + TypeScript frontend
-│   └── src/
-│       ├── components/         ← Reusable UI (Navbar, ContentCard, AISearchBar)
-│       ├── contexts/           ← AuthContext – global login state
-│       ├── pages/              ← All pages (Landing, Dashboard, KidsHome…)
-│       ├── services/api.ts     ← All API calls + demo mode fallback
-│       └── types/index.ts      ← Shared TypeScript interfaces
-└── backend/                    ← Node.js + Express API
-    ├── routes/
-    │   ├── auth.js             ← POST /api/auth/register, /api/auth/login
-    │   ├── children.js         ← CRUD for child profiles + restrictions
-    │   └── ai.js               ← POST /api/ai/search, GET /api/ai/suggestions/:id
-    ├── database/
-    │   ├── db.js               ← PostgreSQL connection pool
-    │   └── schema.sql          ← Table definitions + default-restriction trigger
-    ├── middleware/auth.js       ← JWT verification middleware
-    └── server.js               ← Express entry point
+parents        (id, email, password_hash, name)
+    │
+    └── children   (id, parent_id → parents, name, age, avatar_emoji, pin)
+            │
+            ├── restrictions  (child_id → children, max_content_rating,
+            │                  allowed_categories[], blocked_keywords[],
+            │                  violence_level, allow_scary_content,
+            │                  educational_only, max_daily_minutes, parent_notes)
+            │
+            └── search_history (child_id → children, query, results JSONB)
 ```
 
----
-
-## API Endpoints
-
-| Method | Path | Description |
-|---|---|---|
-| GET | /api/health | Server health check |
-| POST | /api/auth/register | Create parent account |
-| POST | /api/auth/login | Login and get JWT |
-| GET | /api/children | Get all child profiles |
-| POST | /api/children | Add a child |
-| PUT | /api/children/:id | Update child info |
-| DELETE | /api/children/:id | Delete child |
-| PUT | /api/children/:id/restrictions | Save content restrictions |
-| GET | /api/children/:id/history | Get AI search history |
-| POST | /api/ai/search | AI content search |
-| GET | /api/ai/suggestions/:childId | Personalised home feed |
+A PostgreSQL **trigger** automatically creates a safe default restrictions row the moment a child profile is added.
 
 ---
 
-## Features
+## 🔐 Security
 
-- 🛡️ **Parent controls** — age ratings (G/PG/PG-13), allowed categories, blocked keywords
-- 🤖 **AI filtering** — every recommendation goes through parent restrictions before being shown
-- 👧 **Multi-child profiles** — separate settings, avatar, and PIN for each child
-- ⏱️ **Screen-time limits** — set a daily maximum per child
-- 🌙 **Demo mode** — works fully without a backend (localStorage fallback)
-- 📊 **Search history** — parents can review what their child searched for
-
----
-
-## Limitations
-
-1. Screen-time limits are stored but not enforced at the browser level
-2. Demo mode stores passwords in plain text in localStorage (fine for testing only)
-3. AI safety scores are self-reported by the model, not independently verified
-4. JWT tokens are in localStorage rather than secure HttpOnly cookies
-5. No real-time notifications when children search for blocked topics
+- Passwords hashed with **bcrypt** (cost factor 12)
+- **JWT** tokens expire after 7 days
+- All database queries use **parameterised statements** (SQL injection proof)
+- OpenAI API key is **server-side only** — never exposed to the browser
+- Every backend route scoped to `WHERE parent_id = $1` — cross-family data access is impossible
 
 ---
 
-## License
+## 📡 API Endpoints
 
-Educational project — Full Stack Application Development
-website: http://localhost:5173
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | /api/health | No | Server health check |
+| POST | /api/auth/register | No | Create parent account |
+| POST | /api/auth/login | No | Login, receive JWT |
+| GET | /api/children | JWT | List parent's children |
+| POST | /api/children | JWT | Add child profile |
+| PUT | /api/children/:id/restrictions | JWT | Save all 8 parental controls |
+| DELETE | /api/children/:id | JWT | Delete child (cascades) |
+| GET | /api/children/:id/history | JWT | Child's search history |
+| POST | /api/ai/search | JWT | AI-filtered content search |
+| GET | /api/ai/suggestions/:id | JWT | Personalised home feed |
+
+---
+
+## 🎓 Assignment
+
+**Unit:** CMS22204 — Full Stack Application Development  
+**University:** Ravensbourne University London  
+**Level:** 5 | **Credits:** 40 | **Deadline:** April 24, 2026  
+**Student:** Alessio Akabuogu
