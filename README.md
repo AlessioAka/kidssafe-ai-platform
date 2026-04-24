@@ -2,7 +2,7 @@
 
 **A full-stack web application that helps parents keep their children safe online using AI-powered content filtering.**
 
-Module: CMS22204 | Student: Alessio Akabuogu
+Module: Full Stack Application Development | Student: Alessio Akabuogu
 
 ---
 
@@ -135,4 +135,5 @@ kidssafe-full/
 
 ## License
 
-Educational project — CMS22204
+Educational project — Full Stack Application Development
+website: http://localhost:5173
