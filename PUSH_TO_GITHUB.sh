@@ -1,58 +1,47 @@
 #!/bin/bash
 # ============================================================
-# KidsSafe AI Platform — GitHub Setup Script
-# Run this script once to create the GitHub repo and push.
+# KidsSafe AI Platform — GitHub Push Script
+# Repository: https://github.com/AlessioAka/kidssafe-ai-platform
 #
 # Usage:
-#   chmod +x PUSH_TO_GITHUB.sh
-#   ./PUSH_TO_GITHUB.sh
+#   1. Get a Personal Access Token from:
+#      https://github.com/settings/tokens/new
+#      (select 'repo' scope, any expiry)
+#   2. Run:
+#      bash PUSH_TO_GITHUB.sh
 # ============================================================
 
 echo ""
 echo "========================================="
-echo "  KidsSafe — GitHub Push Setup"
+echo "  KidsSafe — Push to GitHub"
+echo "  AlessioAka/kidssafe-ai-platform"
 echo "========================================="
 echo ""
 
-# Ask for GitHub username
-read -p "Enter your GitHub username (e.g. alessioakabuogu): " GITHUB_USERNAME
+read -s -p "Paste your GitHub Personal Access Token and press Enter: " TOKEN
+echo ""
 
-if [ -z "$GITHUB_USERNAME" ]; then
-  echo "Error: GitHub username is required."
+if [ -z "$TOKEN" ]; then
+  echo "Error: Token is required."
   exit 1
 fi
 
-REPO_NAME="kidssafe-ai"
-echo ""
-echo "Steps to complete:"
-echo ""
-echo "1. Go to https://github.com/new in your browser"
-echo "   - Repository name: $REPO_NAME"
-echo "   - Description: KidsSafe AI Platform — CMS22204"
-echo "   - Set to Public"
-echo "   - DO NOT tick 'Add a README file'"
-echo "   - Click 'Create repository'"
-echo ""
-echo "2. Come back here and press ENTER to continue..."
-read -p ""
+echo "Pushing to GitHub..."
 
-echo ""
-echo "3. Adding GitHub remote and pushing..."
-
-git remote add origin "https://github.com/$GITHUB_USERNAME/$REPO_NAME.git"
-git branch -M main
+git remote set-url origin "https://${TOKEN}@github.com/AlessioAka/kidssafe-ai-platform.git"
 git push -u origin main
 
 if [ $? -eq 0 ]; then
+  # Remove token from remote URL after successful push (security)
+  git remote set-url origin "https://github.com/AlessioAka/kidssafe-ai-platform.git"
   echo ""
   echo "========================================="
-  echo "  SUCCESS!"
-  echo "  Your code is live at:"
-  echo "  https://github.com/$GITHUB_USERNAME/$REPO_NAME"
+  echo "  SUCCESS! Code is live at:"
+  echo "  https://github.com/AlessioAka/kidssafe-ai-platform"
   echo "========================================="
 else
+  git remote set-url origin "https://github.com/AlessioAka/kidssafe-ai-platform.git"
   echo ""
-  echo "Push failed. GitHub will ask for your username and a Personal Access Token."
-  echo "To create a token: https://github.com/settings/tokens/new"
-  echo "Select 'repo' scope and use the token as your password."
+  echo "Push failed. Check your token has 'repo' scope."
+  echo "Create a new token at: https://github.com/settings/tokens/new"
 fi
