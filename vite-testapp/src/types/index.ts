@@ -49,13 +49,15 @@ export interface Child extends Partial<Restrictions> {
 /** A single AI-generated content recommendation */
 export interface ContentRecommendation {
   title: string;
-  type: 'TV Show' | 'Movie' | 'YouTube Channel' | 'Educational Video' | 'Podcast';
+  type: 'TV Show' | 'Movie' | 'YouTube Channel' | 'Educational Video' | 'Podcast' | 'Documentary' | 'Music Video';
   category: string;
   ageRating: 'G' | 'PG' | 'PG-13';
   description: string;
   whyRecommended: string;
   platform: string;
   safetyScore: number;   // 1–100, 100 = perfectly safe
+  youtubeId?: string;           // YouTube video ID for in-page embed
+  youtubeSearchQuery?: string;  // fallback: opens YouTube search
 }
 
 /** Full response from POST /api/ai/search */

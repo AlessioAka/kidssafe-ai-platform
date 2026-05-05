@@ -53,6 +53,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
+  // Clear auth state when the API layer detects an invalid/expired token
+  useEffect(() => {
+    const handle = () => {
+      setToken(null);
+      setParent(null);
+      setSelectedChild(null);
+    };
+    window.addEventListener('kidssafe:session-expired', handle);
+    return () => window.removeEventListener('kidssafe:session-expired', handle);
+  }, []);
+
   // ── Helpers ──────────────────────────────────────────────
 
   function persist(t: string, p: Parent) {

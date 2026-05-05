@@ -12,6 +12,7 @@
 const express = require('express');
 const OpenAI  = require('openai');
 const db      = require('../database/db');
+const { searchContent } = require('../data/contentDatabase');
 
 const router = express.Router();
 
@@ -154,14 +155,14 @@ router.post('/search', async (req, res) => {
     // Use real OpenAI when the API key is set; otherwise fall back gracefully
     if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your-openai-api-key-here') {
       try {
-        recommendations = await getAIRecommendations(child, `Find content for: "${query}"`, 6);
+        recommendations = await getAIRecommendations(child, `Find content for: "${query}"`, 20);
       } catch (aiErr) {
         console.warn('OpenAI error, using fallback:', aiErr.message);
-        recommendations = fallbackRecommendations(child.age);
+        recommendations = searchContent(query, child, 20);
       }
     } else {
-      // Demo mode — no API key needed
-      recommendations = fallbackRecommendations(child.age);
+      // Demo mode — topic-specific curated results
+      recommendations = searchContent(query, child, 20);
     }
 
     // Persist search query + results for parental review
@@ -219,15 +220,15 @@ router.get('/suggestions/:childId', async (req, res) => {
       try {
         recommendations = await getAIRecommendations(
           child,
-          `Suggest 8 personalised shows and videos for ${child.name}. Recent interests: ${recentInterests}.`,
-          8
+          `Suggest 20 personalised shows and videos for ${child.name}. Recent interests: ${recentInterests}.`,
+          20
         );
       } catch (aiErr) {
         console.warn('OpenAI error, using fallback:', aiErr.message);
-        recommendations = fallbackRecommendations(child.age);
+        recommendations = searchContent(recentInterests, child, 20);
       }
     } else {
-      recommendations = fallbackRecommendations(child.age);
+      recommendations = searchContent(recentInterests, child, 20);
     }
 
     res.json({
