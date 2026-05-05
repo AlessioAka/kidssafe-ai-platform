@@ -18,6 +18,7 @@ Children using mainstream platforms (YouTube, Netflix, Google) are exposed to al
 - Routing **every child search through OpenAI GPT-4**, constrained by the parent's exact rules
 - Providing a **PIN-protected child profile** system so siblings can't use the wrong profile
 - Returning a **safety score (1–100)** and plain-language reason for every AI recommendation
+- Website URL - http://localhost:5173
 
 ---
 
@@ -170,5 +171,5 @@ A PostgreSQL **trigger** automatically creates a safe default restrictions row t
 
 **Unit:** CMS22204 — Full Stack Application Development  
 **University:** Ravensbourne University London  
-**Level:** 5 | **Credits:** 40 | **Deadline:** April 24, 2026  
+**Level:** 5 | **Credits:** 40 |  
 **Student:** Alessio Akabuogu
